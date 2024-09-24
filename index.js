@@ -11,8 +11,6 @@ const HOST = process.env.HOST  || '0.0.0.0';
 const PORT = process.env.PORT  || 3000;
 const G_threeScale_URL = process.env.G_threeScale_URL;
 const G_threeScale_remote_token = process.env.G_threeScale_remote_token;
-const Route3scale2Idss = process.env.Route3scale2Ids;
-Route3scale2Ids = JSON.parse(Route3scale2Idss)
 
 // Create an HTTPS agent that accepts self-signed certificates
 const httpsAgent = new https.Agent({
@@ -38,8 +36,16 @@ app.get('/', async (req, res) => {
 	authorization = req.headers['authorization'];
 	console.log('authorization : ' + authorization);
 	
+	service_id = req.query.service_id
+	console.log("3scale service_id : " + service_id);
+	
+	WS_URI = req.query.URI
+	console.log("WS_URI : " + WS_URI);
+	
+	BE_location = "https://soatest.iamdg.net.ma:7002/" + WS_URI
+	
     if ('wsdl' in req.query) {
-        backend_usages_resp = await axios.get(G_threeScale_URL + "/admin/api/services/" + Route3scale2Ids[x_forwarded_host] +"/backend_usages.json?access_token=" + G_threeScale_remote_token, {httpsAgent : httpsAgent} );
+        backend_usages_resp = await axios.get(G_threeScale_URL + "/admin/api/services/" + service_id +"/backend_usages.json?access_token=" + G_threeScale_remote_token, {httpsAgent : httpsAgent} );
 		real_backend = backend_usages_resp.data.filter(b => b.backend_usage.path=='/')
 		console.log("\nreal backend IDs : " + real_backend)
 		real_backend_id = real_backend[0].backend_usage.backend_id
@@ -71,7 +77,7 @@ app.get('/', async (req, res) => {
 			}
 			// Log the parsed result
 			console.dir(result['wsdl:definitions']['wsdl:service'][0]['wsdl:port'][0]['soap:address'][0].$.location);
-			result['wsdl:definitions']['wsdl:service'][0]['wsdl:port'][0]['soap:address'][0].$.location = "https://soa.iamdg.net.ma:7070"
+			result['wsdl:definitions']['wsdl:service'][0]['wsdl:port'][0]['soap:address'][0].$.location = BE_location
 			const builder = new xml2js.Builder();
 			updatedWSDL = builder.buildObject(result)
 			console.log("\nUpdated WSDL : \n" + updatedWSDL);
@@ -91,7 +97,6 @@ app.get('/', async (req, res) => {
 // Start the server
 app.listen(PORT, HOST,  () => {
     console.log(`Server is running on http://${HOST}:${PORT}`);
-	
 	console.log("G_threeScale_URL : " + G_threeScale_URL);
 	
 });

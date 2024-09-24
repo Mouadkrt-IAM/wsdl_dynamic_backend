@@ -71,7 +71,7 @@ app.get('/', async (req, res) => {
 			}
 			// Log the parsed result
 			console.dir(result['wsdl:definitions']['wsdl:service'][0]['wsdl:port'][0]['soap:address'][0].$.location);
-			result['wsdl:definitions']['wsdl:service'][0]['wsdl:port'][0]['soap:address'][0].$.location = "https://example.com"
+			result['wsdl:definitions']['wsdl:service'][0]['wsdl:port'][0]['soap:address'][0].$.location = "https://soa.iamdg.net.ma:7070"
 			const builder = new xml2js.Builder();
 			updatedWSDL = builder.buildObject(result)
 			console.log("\nUpdated WSDL : \n" + updatedWSDL);

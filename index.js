@@ -45,29 +45,43 @@ app.get('/', async (req, res) => {
 	BE_location = "https://soatest.iamdg.net.ma:7002/" + WS_URI
 	
     if ('wsdl' in req.query) {
+		
         backend_usages_resp = await axios.get(G_threeScale_URL + "/admin/api/services/" + service_id +"/backend_usages.json?access_token=" + G_threeScale_remote_token, {httpsAgent : httpsAgent} );
 		real_backend = backend_usages_resp.data.filter(b => b.backend_usage.path=='/')
-		console.log("\nreal backend IDs : " + real_backend)
 		real_backend_id = real_backend[0].backend_usage.backend_id
 		
 		backend_apis = await axios.get(G_threeScale_URL + "/admin/api/backend_apis.json?access_token=" + G_threeScale_remote_token, {httpsAgent:httpsAgent} );
 		backend_api = backend_apis.data.backend_apis.filter(b => b.backend_api.id==real_backend_id);
-		console.log("\nreal backend : " + backend_api)
+		console.log("\nreal backend : ")
 		console.log(backend_api);
 		real_backend_url = backend_api[0].backend_api.private_endpoint
 		console.log(backend_api[0].backend_api.private_endpoint);
-		real_backend_url
 		WSDL_URL_BACKEND = real_backend_url + "?wsdl"
+		console.log("WSDL_URL_BACKEND before update : \n" + WSDL_URL_BACKEND);
+		
+		// Now that we have the Full URL of teh WSDL file at the backend, let's check if we need an http basic auth in order to retreive it :
+		// Oups, seems like we don't even need this, since the 3sacle header modifiction is applied before we the call is redirected to this code
+		// So the 'authorization' above, are the ones set after the 'headers" modification policy is executed !
+		
+		/*policies = await axios.get(G_threeScale_URL + "/admin/api/services/" + service_id +"/proxy/policies.json?access_token=" + G_threeScale_remote_token, {httpsAgent:httpsAgent} );
+		console.log("3scale policies for the curent service : \n");
+		console.log(policies.data.policies_config);
+		console.log("Check if the WS require an http basic auth ...");
+		headers_policy = policies.data.policies_config.filter(p =>  p.name=='headers' && p.enabled==true)
+		console.log("Found " + headers_policy.length + " active 'header' policy");
+		if(headers_policy.length>0) {
+			BE_BasicAuth = headers_policy[0].configuration.request[0].value
+			console.log("with basic auth : " + BE_BasicAuth);
+		}*/
+				
 	
 	    try {
             // Make an HTTP call to the backend service (The API provider hosting the WSDL file)
-            // @todo : replace the hard coded URL below with the real 3scale backend for the targeted WS
             const response = await axios.get(WSDL_URL_BACKEND, {
 				headers		: {'Authorization':authorization},
 				httpsAgent	: httpsAgent
 				});
-            // Send the response from the backend to the client
-            console.log("\nSending back WSDL as read from : " + WSDL_URL_BACKEND);
+            
             res.set('Content-Type', 'application/wsdl+xml');
             
 			xmlParser.parseString(response.data, (err, result) => {
@@ -76,11 +90,13 @@ app.get('/', async (req, res) => {
 				return;
 			}
 			// Log the parsed result
-			console.dir(result['wsdl:definitions']['wsdl:service'][0]['wsdl:port'][0]['soap:address'][0].$.location);
+			oldLocation = result['wsdl:definitions']['wsdl:service'][0]['wsdl:port'][0]['soap:address'][0].$.location
 			result['wsdl:definitions']['wsdl:service'][0]['wsdl:port'][0]['soap:address'][0].$.location = BE_location
 			const builder = new xml2js.Builder();
 			updatedWSDL = builder.buildObject(result)
-			console.log("\nUpdated WSDL : \n" + updatedWSDL);
+			//console.log("\nUpdated WSDL : \n" + updatedWSDL);
+			// Send the response from the backend to the client
+            console.log("\nSending back WSDL as served from : " + WSDL_URL_BACKEND + ", with location updated from :\n"+ oldLocation + "\nto :\n" + BE_location);
 			res.send(updatedWSDL);
 		});
         } catch (error) {

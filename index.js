@@ -23,7 +23,7 @@ app.get('/', async (req, res) => {
     // Check if the 'wsdl' query parameter exists
 	
 	
-	console.log("\n\nNew GET request received on / :");
+	console.log("\n\n----------------------------------------\nNew GET request received on / :");
 	console.log("\nQUERY Params :");
 	console.log(req.query);
 	
@@ -31,24 +31,24 @@ app.get('/', async (req, res) => {
 	console.log(req.headers);
 	
 	x_forwarded_host = req.headers['x-forwarded-host'];
-	console.log('x-forwarded-host : ' + x_forwarded_host);
+	console.log('\nx-forwarded-host : ' + x_forwarded_host);
 	
 	x_forwarded_host_3scale = req.headers['x-forwarded-host-3scale'];
 	
 	 if( x_forwarded_host_3scale == null || (typeof x_forwarded_host_3scale === "string" && x_forwarded_host_3scale.trim().length === 0) ) {
-		console.log('x-forwarded-host-3scale null or empty ! Using  default : soa.iamdg.net.ma');
+		console.log('\nx-forwarded-host-3scale null or empty ! Using  default : soa.iamdg.net.ma');
 		x_forwarded_host_3scale = "soa.iamdg.net.ma:7070"
 	 }
 	console.log('x-forwarded-host-3scale : ' + x_forwarded_host_3scale);
 	
 	authorization = req.headers['authorization'];
-	console.log('authorization : ' + authorization);
+	console.log('\nauthorization : ' + authorization);
 	
 	service_id = req.query.service_id
-	console.log("3scale service_id : " + service_id);
+	console.log("\n3scale service_id : " + service_id);
 	
 	WS_URI = req.query.URI
-	console.log("WS_URI : " + WS_URI);
+	console.log("\nWS_URI : " + WS_URI);
 	
 	//BE_location = "https://soatest.iamdg.net.ma:7002/" + WS_URI
 	BE_location = "https://" + x_forwarded_host_3scale + "/" + WS_URI
@@ -64,7 +64,7 @@ app.get('/', async (req, res) => {
 		console.log("\nreal backend : ")
 		console.log(backend_api);
 		real_backend_url = backend_api[0].backend_api.private_endpoint
-		console.log(backend_api[0].backend_api.private_endpoint);
+		console.log("private_endpoint : " + backend_api[0].backend_api.private_endpoint);
 		WSDL_URL_BACKEND = real_backend_url + "?wsdl"
 		console.log("WSDL_URL_BACKEND before update : \n" + WSDL_URL_BACKEND);
 		
@@ -121,6 +121,7 @@ app.get('/', async (req, res) => {
 
 // Start the server
 app.listen(PORT, HOST,  () => {
+	console.log("wsdl-dynamic-backend v0.2");
     console.log(`Server is running on http://${HOST}:${PORT}`);
 	console.log("G_threeScale_URL : " + G_threeScale_URL);
 	

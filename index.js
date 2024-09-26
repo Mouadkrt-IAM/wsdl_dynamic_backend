@@ -35,10 +35,10 @@ app.get('/', async (req, res) => {
 	
 	x_forwarded_host_3scale = req.headers['x-forwarded-host-3scale'];
 	
-	 if( x_forwarded_host_3scale == null || (typeof x_forwarded_host_3scale === "string" && x_forwarded_host_3scale.trim().length === 0) ) {
+	/*if( x_forwarded_host_3scale == null || (typeof x_forwarded_host_3scale === "string" && x_forwarded_host_3scale.trim().length === 0) ) {
 		console.log('\nx-forwarded-host-3scale null or empty ! Using  default : soa.iamdg.net.ma');
 		x_forwarded_host_3scale = "soa.iamdg.net.ma:7070"
-	 }
+	 }*/
 	console.log('x-forwarded-host-3scale : ' + x_forwarded_host_3scale);
 	
 	authorization = req.headers['authorization'];

@@ -33,6 +33,14 @@ app.get('/', async (req, res) => {
 	x_forwarded_host = req.headers['x-forwarded-host'];
 	console.log('x-forwarded-host : ' + x_forwarded_host);
 	
+	x_forwarded_host_3scale = req.headers['x-forwarded-host-3scale'];
+	
+	 if( x_forwarded_host_3scale == null || (typeof x_forwarded_host_3scale === "string" && x_forwarded_host_3scale.trim().length === 0) ) {
+		console.log('x-forwarded-host-3scale null or empty ! Using  default : soa.iamdg.net.ma');
+		x_forwarded_host_3scale = "soa.iamdg.net.ma:7070"
+	 }
+	console.log('x-forwarded-host-3scale : ' + x_forwarded_host_3scale);
+	
 	authorization = req.headers['authorization'];
 	console.log('authorization : ' + authorization);
 	
@@ -42,7 +50,8 @@ app.get('/', async (req, res) => {
 	WS_URI = req.query.URI
 	console.log("WS_URI : " + WS_URI);
 	
-	BE_location = "https://soatest.iamdg.net.ma:7002/" + WS_URI
+	//BE_location = "https://soatest.iamdg.net.ma:7002/" + WS_URI
+	BE_location = "https://" + x_forwarded_host_3scale + "/" + WS_URI
 	
     if ('wsdl' in req.query) {
 		

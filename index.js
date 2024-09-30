@@ -112,7 +112,7 @@ app.get('/', async (req, res) => {
 			}
 			
 			// Log the parsed result
-			console.log("\n\n Locating xml node *:definitions\*:service\*:port\*:address without any tagname dependency (Backedn implementation) :");
+			console.log("\n Locating xml node *:definitions\\*:service\\*:port\\*:address without any tagname dependency (Backend implementation) :");
 			definitions_key = Object.keys(result).filter(k => k.includes(':definitions')).pop();
 			console.log("definitions tag found : " + definitions_key);
 			

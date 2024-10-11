@@ -67,7 +67,7 @@ app.get('/', async (req, res) => {
 	
     if ('wsdl' in req.query) {
 		
-        backend_usages_resp = await axios.get(G_threeScale_URL + "/admin/api/services/" + service_id +"/backend_usages.json?access_token=" + G_threeScale_remote_token, {httpsAgent : httpsAgent} );
+        /*backend_usages_resp = await axios.get(G_threeScale_URL + "/admin/api/services/" + service_id +"/backend_usages.json?access_token=" + G_threeScale_remote_token, {httpsAgent : httpsAgent} );
 		real_backend = backend_usages_resp.data.filter(b => b.backend_usage.path=='/')
 		real_backend_id = real_backend[0].backend_usage.backend_id
 		
@@ -77,7 +77,8 @@ app.get('/', async (req, res) => {
 		console.log(backend_api);
 		real_backend_url = backend_api[0].backend_api.private_endpoint
 		console.log("private_endpoint : " + backend_api[0].backend_api.private_endpoint);
-		WSDL_URL_BACKEND = real_backend_url + "?wsdl"
+		WSDL_URL_BACKEND = real_backend_url + "?wsdl"*/
+		WSDL_URL_BACKEND = "https://10.96.8.206:8643/degroupagews/services/DegroupageManagerService?wsdl"
 		console.log("WSDL_URL_BACKEND before update : \n" + WSDL_URL_BACKEND);
 		
 		// Now that we have the Full URL of teh WSDL file at the backend, let's check if we need an http basic auth in order to retreive it :
@@ -132,7 +133,7 @@ app.get('/', async (req, res) => {
 			//console.log("\nUpdated WSDL : \n" + updatedWSDL);
 			// Send the response from the backend to the client
             console.log("\nSending back WSDL as served from : " + WSDL_URL_BACKEND + ", with location updated from :\n"+ oldLocation + "\nto :\n" + BE_location);
-			res.send(updatedWSDL);
+			res.status(200).send(updatedWSDL);
 		});
         } catch (error) {
             // Handle errors from the backend service
